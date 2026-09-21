@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import type { Role } from '../types.js';
 import { randomUUID } from 'node:crypto';
 import bcrypt from "bcrypt";
-
+import type { Document } from 'mongoose';
 
 export type UserDocument = User & Document;
 

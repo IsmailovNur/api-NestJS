@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import type { Document } from 'mongoose';
 
 export type AlbumDocument = Album & Document;
 
