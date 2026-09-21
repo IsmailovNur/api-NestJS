@@ -3,13 +3,16 @@ import {
   Controller, Delete,
   Get, NotFoundException, Param,
   Post,
-  Query,
+  Query, UseGuards,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Track, TrackDocument } from '../schemas/track.schema.js';
 import { Model, Types } from 'mongoose';
 import { Album, AlbumDocument } from '../schemas/album.schema.js';
 import { CreateTrackDto } from './create.track.dto.js';
+import { AuthGuard } from '../middlewares/auth.guard.js';
+import { RolesGuard } from '../middlewares/roles.guard.js';
+import { Roles } from '../decorators/roles.decorator.js';
 
 @Controller('tracks')
 export class TracksController {
@@ -40,6 +43,7 @@ export class TracksController {
       .populate('album', 'title');
   }
 
+  @UseGuards(AuthGuard)
   @Post()
   async create(@Body() trackDto: CreateTrackDto) {
     if (!trackDto.title.trim()) {
@@ -89,6 +93,8 @@ export class TracksController {
     }
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin')
   @Delete(':id')
   async delete(@Param('id') id: string) {
     if (!Types.ObjectId.isValid(id)) {

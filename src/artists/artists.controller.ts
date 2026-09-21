@@ -3,7 +3,7 @@ import {
   Controller, Delete,
   Get,
   NotFoundException,
-  Param, Post, UploadedFile, UseInterceptors,
+  Param, Post, UploadedFile, UseGuards, UseInterceptors,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Artist, ArtistDocument } from '../schemas/artist.schema.js';
@@ -13,6 +13,9 @@ import { Track, TrackDocument } from '../schemas/track.schema.js';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateArtistDto } from './create.artist.dto.js';
 import 'multer';
+import { AuthGuard } from '../middlewares/auth.guard.js';
+import { RolesGuard } from '../middlewares/roles.guard.js';
+import { Roles } from '../decorators/roles.decorator.js';
 
 @Controller('artists')
 export class ArtistsController {
@@ -49,10 +52,10 @@ export class ArtistsController {
     return artist;
   }
 
-
+  @UseGuards(AuthGuard)
   @Post()
   @UseInterceptors(
-    FileInterceptor('image', { dest: './public/images/artists' })
+    FileInterceptor('image', { dest: './public/images/artists' }),
   )
   async create(
     @UploadedFile() uploadedFile: Express.Multer.File,
@@ -79,7 +82,8 @@ export class ArtistsController {
     }
   }
 
-
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin')
   @Delete(':id')
   async delete(@Param('id') id: string) {
     if (!Types.ObjectId.isValid(id)) {

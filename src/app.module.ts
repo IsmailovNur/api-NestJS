@@ -10,6 +10,8 @@ import { TracksController } from './tracks/tracks.controller.js';
 import { ArtistsController } from './artists/artists.controller.js';
 import { User, UserSchema } from './schemas/user.schema.js';
 import { UsersController } from './users/users.controller.js';
+import { AuthGuard } from './middlewares/auth.guard.js';
+import { RolesGuard } from './middlewares/roles.guard.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -20,11 +22,17 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       { name: Artist.name, schema: ArtistSchema },
       { name: Album.name, schema: AlbumSchema },
       { name: Track.name, schema: TrackSchema },
-      { name: User.name, schema: UserSchema }
+      { name: User.name, schema: UserSchema },
     ]),
   ],
-  controllers: [ArtistsController, AlbumsController, TracksController, UsersController],
-  providers: [AppService],
+
+  controllers: [
+    ArtistsController,
+    AlbumsController,
+    TracksController,
+    UsersController],
+
+  providers: [AppService, AuthGuard, RolesGuard],
 })
 export class AppModule {
 }

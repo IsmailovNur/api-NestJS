@@ -3,7 +3,7 @@ import {
   Controller, Delete,
   Get, NotFoundException,
   Param, Post,
-  Query, UploadedFile, UseInterceptors,
+  Query, UploadedFile, UseGuards, UseInterceptors,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Album, AlbumDocument } from '../schemas/album.schema.js';
@@ -13,6 +13,9 @@ import { Track, TrackDocument } from '../schemas/track.schema.js';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateAlbumDto } from './create.album.dto.js';
 import 'multer';
+import { AuthGuard } from '../middlewares/auth.guard.js';
+import { RolesGuard } from '../middlewares/roles.guard.js';
+import { Roles } from '../decorators/roles.decorator.js';
 
 @Controller('albums')
 export class AlbumsController {
@@ -53,7 +56,7 @@ export class AlbumsController {
         const count = await this.trackModel.countDocuments({ album: album._id });
 
         return Object.assign(album.toObject(), { tracksCount: count });
-      })
+      }),
     );
 
     return albumsWithTrackCount;
@@ -76,6 +79,7 @@ export class AlbumsController {
     return album;
   }
 
+  @UseGuards(AuthGuard)
   @Post()
   @UseInterceptors(
     FileInterceptor('coverImage', { dest: './public/images/albums' }),
@@ -121,6 +125,8 @@ export class AlbumsController {
     return album.save();
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin')
   @Delete(':id')
   async delete(@Param('id') id: string) {
     if (!Types.ObjectId.isValid(id)) {
